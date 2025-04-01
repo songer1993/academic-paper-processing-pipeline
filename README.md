@@ -24,6 +24,31 @@ This repository contains a set of tools to process academic papers from PDFs to 
    - Creates searchable vectors in Pinecone index
    - Enables semantic search via MCP servers in Cursor
 
+5. **Configure Semantic Search in Cursor**:
+   - Create `.cursor/settings.json` in your project root:
+     ```json
+     {
+         "mcpServers": {
+             "mcp-pinecone": {
+                 "command": "uvx",
+                 "args": [
+                     "mcp-pinecone",
+                     "--index-name",
+                     "your-index-name",
+                     "--api-key",
+                     "your-pinecone-api-key"
+                 ]
+             }
+         }
+     }
+     ```
+   - This project-specific configuration ensures the correct Pinecone index is used
+   - Usage in Cursor:
+     - Ask questions about your papers in natural language
+     - Example: "Find papers discussing haptic feedback in VR"
+     - Results include relevant excerpts with citation keys
+     - Click results to view full paper content
+
 ## Prerequisites
 
 - Python 3.8+
