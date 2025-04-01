@@ -59,9 +59,6 @@ This repository contains a set of tools to process academic papers from PDFs to 
 
 ## Installation
 
-You can install dependencies in two ways:
-
-### Using pip (Simple)
 ```bash
 # Clone repository
 git clone https://github.com/yourusername/paper-processing
@@ -72,22 +69,6 @@ pip install -r requirements.txt
 
 # Verify marker installation
 marker_single --help
-```
-
-### Using poetry (Recommended by marker)
-```bash
-# Clone repository
-git clone https://github.com/yourusername/paper-processing
-cd paper-processing
-
-# Install poetry if you haven't
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Install dependencies including marker
-poetry install
-
-# Verify marker installation
-poetry run marker_single --help
 ```
 
 ## Configuration
