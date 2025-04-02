@@ -166,6 +166,14 @@ The repository includes `.gitkeep` files to preserve empty directories in versio
 - If you encounter garbled text, use the `--force_ocr` flag
 - All scripts automatically load configuration from .env file
 
+### Natural Language Search with mcp-pinecone
+
+This pipeline integrates with [mcp-pinecone](https://github.com/sirmews/mcp-pinecone) to enable natural language search capabilities over your paper collection. Once your papers are processed and indexed in Pinecone, you can:
+
+- Search paper content using natural language queries
+- Get semantically relevant excerpts from papers
+- View full paper content with citation context
+
 ## License
 
 MIT License - See LICENSE file for details 
