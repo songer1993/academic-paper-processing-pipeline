@@ -148,25 +148,6 @@ def find_markdown_files(markdown_dir: Path) -> List[Path]:
                 md_files.append(Path(dirpath) / filename)
     return md_files
 
-def get_venue_from_entry(bib_entry: Dict) -> str:
-    """Extract venue information based on entry type."""
-    entry_type = bib_entry.get('ENTRYTYPE', '').lower()
-    
-    if entry_type == 'article':
-        return bib_entry.get('journal', '')
-    elif entry_type == 'inproceedings':
-        return bib_entry.get('booktitle', '')
-    elif entry_type == 'book':
-        return bib_entry.get('publisher', '')
-    elif entry_type in ['phdthesis', 'mastersthesis']:
-        return bib_entry.get('school', '')
-    else:
-        # For other types, try common venue fields
-        for field in ['journal', 'booktitle', 'publisher', 'school']:
-            if field in bib_entry:
-                return bib_entry[field]
-    return ''
-
 def assess_chunk_relevance(chunk: str) -> bool:
     """Use Gemini to assess if a chunk contains meaningful research content."""
     # If model initialization failed, keep all chunks
@@ -300,24 +281,27 @@ def process_markdown_file(md_file: Path, bib_entries: Dict[str, Dict], pc: Pinec
             
             # Create base metadata that will be the same for all chunks
             base_metadata = {
+                'citekey': bib_entry['ID'],  # Citation key from BibTeX
                 'title': bib_entry.get('title', ''),
                 'author': bib_entry.get('author', ''),
                 'year': bib_entry.get('year', ''),
                 'abstract': bib_entry.get('abstract', ''),
-                'doi': bib_entry.get('doi', ''),
-                'venue': get_venue_from_entry(bib_entry)
+                'doi': bib_entry.get('doi', '')
             }
             
             # Process each chunk
             for i, chunk in enumerate(chunks):
-                # Generate embedding for this chunk
+                # Create enriched text for embedding by combining title, abstract, chunk position and content
+                enriched_text = f"Title: {bib_entry.get('title', '')}\n\nAbstract: {bib_entry.get('abstract', '')}\n\nChunk {i+1} of {len(chunks)}:\n\n{chunk}"
+                
+                # Generate embedding using the enriched text
                 embedding = pc.inference.embed(
                     model="llama-text-embed-v2",
-                    inputs=[chunk],
+                    inputs=[enriched_text],
                     parameters={"input_type": "passage"}
                 )
                 
-                # Create metadata for this chunk
+                # Create metadata for this chunk - keeping fields separate
                 metadata = {
                     **base_metadata,
                     'text': chunk,
