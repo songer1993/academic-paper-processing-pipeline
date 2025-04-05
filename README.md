@@ -4,27 +4,24 @@ This repository contains a set of tools to process academic papers from PDFs to 
 
 ## Workflow Overview
 
-1. **Collect PDFs**: 
-   - Save academic papers in Zotero
-   - Export PDFs with Zotero's file naming convention
-   - Place PDFs in `input/pdfs` directory
-
-2. **Convert to Markdown**:
-   - Use `scripts/convert_pdfs.py` to batch convert PDFs to markdown
-   - Outputs go to `output/raw_md`
+1. **Convert PDFs to Markdown**:
+   - Use `scripts/convert_pdfs.py` to convert PDFs to markdown
+   - Specify any input and output directories you prefer
    - Uses marker for high-quality conversion
 
-3. **Rename by Citation Key**:
+2. **Upload to Pinecone**:
    - Export .bib file from Zotero
-   - Copy markdown files to `output/renamed_md`
-   - Use `scripts/rename_by_citekey.py` to rename based on citation keys
+   - Use `scripts/upsert_to_pinecone.py` to:
+     - Process markdown files
+     - Extract bibliographic metadata
+     - Generate embeddings
+     - Upload to Pinecone index
+   - Each document is stored with:
+     - Full text content
+     - Bibliographic metadata (title, authors, year, etc.)
+     - Vector embedding for semantic search
 
-4. **Upload to Pinecone**:
-   - Use `scripts/upsert_vectors.py` to chunk and vectorize content
-   - Creates searchable vectors in Pinecone index
-   - Enables semantic search via MCP servers in Cursor
-
-5. **Configure Semantic Search in Cursor**:
+3. **Configure Semantic Search in Cursor**:
    - Create `.cursor/settings.json` in your project root:
      ```json
      {
@@ -126,41 +123,26 @@ The repository includes `.gitkeep` files to preserve empty directories in versio
 
 1. **Convert PDFs**:
    ```bash
-   # Using environment variables from .env
    python scripts/convert_pdfs.py \
-     --input_dir input/pdfs \
-     --output_dir output/raw_md \
+     --input_dir path/to/your/pdfs \
+     --output_dir path/to/output/markdown \
      --use_llm
-
-   # Or override with command line
-   python scripts/convert_pdfs.py \
-     --input_dir input/pdfs \
-     --output_dir output/raw_md \
-     --use_llm \
-     --gemini_api_key YOUR_API_KEY
    ```
 
-2. **Rename Files**:
+2. **Upload to Pinecone**:
    ```bash
-   python scripts/rename_by_citekey.py \
-     --input_dir output/raw_md \
-     --output_dir output/renamed_md \
-     --bibtex_file input/bibliography/library.bib
-   ```
-
-3. **Upload to Pinecone**:
-   ```bash
-   # Uses PINECONE_API_KEY from .env
-   python scripts/upsert_vectors.py \
-     --papers_directory output/renamed_md \
-     --index_name your_index_name
+   python scripts/upsert_to_pinecone.py \
+     --markdown_dir path/to/markdown/files \
+     --bibtex_file path/to/your/library.bib \
+     --index_name your_pinecone_index \
+     --batch_size 100
    ```
 
 ## Notes
 
 - The pipeline preserves Zotero's metadata through citation keys
 - Use marker's `--use_llm` flag for higher quality conversion
-- Pinecone vectors include section hierarchy for better context
+- Pinecone vectors include full text and bibliographic metadata
 - Files are processed incrementally - already processed files are skipped
 - For complex PDFs with tables or forms, using `--use_llm` is recommended
 - If you encounter garbled text, use the `--force_ocr` flag

@@ -20,19 +20,22 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Environment
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-.env
 
 # IDE
 .idea/
 .vscode/
+.cursor/
+.memory/
 *.swp
 *.swo
 
-# OS
+# System files
 .DS_Store
 .DS_Store?
 ._*
@@ -42,16 +45,7 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-input/pdfs/*
-!input/pdfs/.gitkeep
-input/bibliography/*
-!input/bibliography/.gitkeep
-output/raw_md/*
-!output/raw_md/.gitkeep
-output/renamed_md/*
-!output/renamed_md/.gitkeep
-
-# Cursor
-.cursor/
-
-./memory.json
+*.pdf
+*.md
+!README.md
+*.bib
