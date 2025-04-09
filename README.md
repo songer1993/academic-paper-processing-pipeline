@@ -43,6 +43,21 @@ PINECONE_API_KEY=your_pinecone_key
 
 The pipeline consists of two main steps, both utilizing Google's Gemini API:
 
+### 0. Prepare Input Files (Zotero)
+
+Before running the scripts, you need to organize your PDFs and export your bibliographic data from Zotero:
+
+1.  **Organize PDFs:** Ensure your PDFs are stored by Zotero. The ideal setup for this pipeline is to have Zotero store attachments in subfolders named after the publication (e.g., using a pattern like `%a - %y - %t` in Zotero's settings or via Better BibTeX preferences). This way, each PDF resides in a folder whose name closely matches the paper's details.
+2.  **Export BibTeX:**
+    *   Select the collection or library you want to process in Zotero.
+    *   Right-click and choose "Export Collection..." (or "Export Library...").
+    *   Select "Better BibTeX" as the format.
+    *   **Crucially**, in the Better BibTeX export options, ensure "Export Files" is checked. This includes the relative paths to your linked PDF files in the `file` field of the `.bib` export, which is essential for matching.
+    *   Save the exported `.bib` file (e.g., `references.bib`).
+3.  **Locate PDF Directory:** Identify the main directory where Zotero stores the subfolders containing your PDFs (this will be the `--input_dir` for the first script).
+
+This preparation ensures that the `convert_pdfs_to_mds.py` script processes the correct PDFs and creates markdown output in appropriately named subdirectories, and the `upload_mds_to_pinecone_by_paragraphs.py` script can later link these markdown files back to their corresponding entries in the exported `.bib` file using the folder names.
+
 ### 1. Convert PDFs to Markdown
 
 Uses marker for high-quality PDF to markdown conversion. Requires GEMINI_API_KEY for enhanced text extraction and formatting.
@@ -78,6 +93,37 @@ Options:
 - `--index_name`: Name of your Pinecone index
 - `--namespace`: Optional Pinecone namespace
 - `--debug`: Enable debug logging for chunk processing
+
+### 3. Configure Cursor MCP Servers (Optional)
+
+If you intend to use Cursor's advanced features like the Memory tool or potentially custom Pinecone integrations directly within the IDE, you might need to configure MCP (Multi-Component Process) servers. This is typically done in a `mcp.json` file located in the `./.cursor/` directory within your workspace root.
+
+Create or update the `./.cursor/mcp.json` file with an `mcpServers` object. Here is a generalized example for a custom Pinecone tool integration:
+
+```json
+{
+    "mcpServers": {
+        "mcp-pinecone": { // Example for a custom Pinecone tool 
+            "command": "uvx", // Or another command runner like 'docker', 'python', etc.
+            "args": [
+                "mcp-pinecone", // The command or script to run
+                "--index-name",
+                "your_pinecone_index_name", // Replace with your index name
+                "--api-key",
+                "your_pinecone_api_key" // Replace with your Pinecone API key
+                // Add other necessary arguments for your specific tool
+            ]
+        }
+        // Add configurations for other MCP servers as needed
+    }
+}
+```
+
+**Notes:**
+
+*   Replace placeholder values like `your_pinecone_index_name` and `your_pinecone_api_key` with your actual configuration.
+*   The specific `command` and `args` will depend heavily on the tool you are integrating and how it's packaged (e.g., Docker container, Python script).
+*   Refer to the documentation of the specific Cursor feature or tool for the exact configuration required.
 
 ### Vector Structure
 

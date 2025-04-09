@@ -16,6 +16,7 @@ import bibtexparser
 from dotenv import load_dotenv
 from pinecone import Pinecone
 import google.generativeai as genai
+from thefuzz import process, fuzz
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -255,16 +256,43 @@ def process_markdown_file(md_file: Path, bib_entries: Dict[str, Dict], pc: Pinec
         # Get the parent directory name (paper title) and normalize it
         dir_name = normalize_filename(md_file.parent.name)
         
-        # Get BibTeX entry
-        bib_entry = bib_entries.get(dir_name)
+        # Use fuzzy matching to find the best BibTeX entry
+        # Get all normalized filenames from bib_entries keys
+        bib_keys = list(bib_entries.keys())
+        # Find the best match with a score above 85
+        best_match, score = process.extractOne(dir_name, bib_keys, scorer=fuzz.token_sort_ratio) 
+        
+        bib_entry = None
+        if score >= 85:  # Set a threshold for matching quality
+            bib_entry = bib_entries.get(best_match)
+            if bib_entry:
+                logger.debug(f"Fuzzy matched '{dir_name}' to BibTeX key '{best_match}' with score {score}")
+            else:
+                 # This case should ideally not happen if best_match is from bib_keys
+                 logger.error(f"Internal error: Fuzzy match '{best_match}' not found in bib_entries dictionary.")
+                 return False
+        
+        # If no good match found, log warning and fail
         if not bib_entry:
-            logger.warning(f"No BibTeX entry found for {dir_name}")
+            logger.warning(f"No suitable BibTeX entry found for '{dir_name}' (best match '{best_match}' score {score} < 85)")
             return False
         
         # Ensure we have a citation key (ID)
         if 'ID' not in bib_entry:
             logger.warning(f"No citation key found in BibTeX entry for {dir_name}")
             return False
+        
+        # Check if the first chunk already exists in Pinecone
+        first_chunk_id = f"{bib_entry['ID']}_chunk_0"
+        try:
+            fetch_response = index.fetch(ids=[first_chunk_id], namespace=namespace)
+            # If the fetch response contains vectors for the ID, skip the file
+            if fetch_response.vectors and first_chunk_id in fetch_response.vectors:
+                logger.info(f"Skipping {dir_name} (ID: {bib_entry['ID']}) as its first chunk already exists in Pinecone.")
+                return True  # Return True to indicate skipped successfully
+        except Exception as e:
+            # Log potential fetch errors but proceed with processing as if it doesn't exist
+            logger.warning(f"Could not verify existence of {first_chunk_id} (Error: {e}). Proceeding with processing.")
         
         # Read markdown content
         try:
