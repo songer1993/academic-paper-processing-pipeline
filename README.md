@@ -165,6 +165,14 @@ The upload script:
 - All scripts automatically load configuration from .env file
 - Debug logging available for troubleshooting
 
+### Natural Language Search with mcp-pinecone
+
+This pipeline integrates with [mcp-pinecone](https://github.com/sirmews/mcp-pinecone) to enable natural language search capabilities over your paper collection. Once your papers are processed and indexed in Pinecone, you can:
+
+- Search paper content using natural language queries
+- Get semantically relevant excerpts from papers
+- View full paper content with citation context
+
 ## License
 
 MIT License - See LICENSE file for details 
