@@ -31,6 +31,7 @@ ENV/
 .idea/
 .vscode/
 .cursor/
+.claude/
 .memory/
 *.swp
 *.swo
@@ -44,8 +45,24 @@ ENV/
 ehthumbs.db
 Thumbs.db
 
-# Project specific
+# Project specific - input/output files
 *.pdf
+*.json
+!pyproject.toml
+!package-lock.json
+*.bib
+
+# Exclude documentation files
 *.md
 !README.md
-*.bib
+!CHANGELOG.md
+
+# Temporary and test files
+test_*.py
+debug_*.py
+
+# Input/output directories (if they exist)
+input/
+output/
+converted/
+data/

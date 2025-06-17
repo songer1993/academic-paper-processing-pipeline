@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "academic-paper-processing-pipeline"
+version = "2.0.0"
+description = "Pipeline to process academic papers from PDFs to searchable vectors in Pinecone using Docling"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Academic Paper Processing Pipeline Contributors"}
+]
+keywords = ["pdf", "docling", "pinecone", "academic", "papers", "vector", "search", "research"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Text Processing :: Indexing",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "docling>=2.7.1", # For PDF to structured document conversion with enhanced features
+    "pinecone>=7.1.0", # For vector database operations
+    "python-dotenv>=1.1.0", # For loading environment variables
+    "torch>=2.7.1", # Required for docling GPU acceleration
+    "rich>=13.9.4", # For enhanced console output (used in docling examples)
+    "docling-core[chunking]>=2.37.0", # For hierarchical chunking functionality
+    "dspy>=2.6.27", # For DSPy framework and LLM-based chunk quality classification
+    "litellm>=1.72.6", # For LLM API integration (used by DSPy for Gemini)
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/songer1993/academic-paper-processing-pipeline"
+Repository = "https://github.com/songer1993/academic-paper-processing-pipeline"
+Issues = "https://github.com/songer1993/academic-paper-processing-pipeline/issues"
+
+[project.scripts]
+convert-pdfs-to-docling = "scripts.convert_pdfs_to_docling:main"
+upload-docling-to-pinecone = "scripts.upload_docling_to_pinecone:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["scripts"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C90", # mccabe complexity
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true

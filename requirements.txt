@@ -1,7 +1,7 @@
-marker-pdf[all]>=0.1.13  # For PDF to markdown conversion with all features
-pinecone>=6.0.0  # For vector database operations
-python-dotenv>=1.0.0  # For loading environment variables
-google-generativeai>=0.3.0  # For Gemini API content filtering and extraction
-bibtexparser>=1.4.0  # For parsing BibTeX files
-thefuzz>=0.20.0  # For fuzzy filename matching
-python-Levenshtein>=0.23.0  # Optional but recommended for thefuzz performance
+docling>=2.7.1  # For PDF to structured document conversion with enhanced features
+pinecone>=7.1.0  # For vector database operations
+python-dotenv>=1.1.0  # For loading environment variables
+torch>=2.7.1  # Required for docling GPU acceleration
+rich>=13.9.4  # For enhanced console output (used in docling examples)
+dspy>=2.6.27  # For DSPy framework and LLM-based chunk quality classification
+litellm>=1.72.6  # For LLM API integration (used by DSPy for Gemini)
